@@ -1,0 +1,75 @@
+.dashboard-container {
+    height: 100vh;
+    position: relative;
+    width: 100%;
+}
+
+.dashboard-content {
+    padding: 24px 109px 116px 109px;
+}
+
+.dashboard-nav {
+    background-color: transparent;
+    border: none;
+    padding: 1rem 0;
+}
+
+.search-input {
+    width: 300px;
+    border-radius: 10px;
+    border: 1px solid #E5E5E5;
+    padding: 0.5rem 1rem;
+}
+
+.add-item-btn {
+    background-color: #FEAF00;
+    border: none;
+    border-radius: 10px;
+    padding: 0.5rem 1.5rem;
+    font-weight: 500;
+}
+
+.add-item-btn:hover {
+    background-color: #F8D442;
+}
+
+.dashboard-tab-content {
+    padding: 1rem 0;
+}
+
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    gap: 1rem;
+}
+
+.no-items {
+    text-align: center;
+    width: 100%;
+    margin-top: 2rem;
+    color: #6C6C6C;
+}
+
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.pagination-container :global(.page-link) {
+    color: #FEAF00;
+    border-color: #E5E5E5;
+}
+
+.pagination-container :global(.page-item.active .page-link) {
+    background-color: #FEAF00;
+    border-color: #FEAF00;
+}
+
+.pagination-container :global(.page-link:hover) {
+    color: #F8D442;
+    background-color: #fff;
+}
