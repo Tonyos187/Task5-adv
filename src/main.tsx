@@ -11,6 +11,9 @@ import SignUp from './pages/SignUp/SignUp';
 import DashboardLayout from './layout/DashboardLayout';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import Dashboard from './pages/dashboard/Dashboard';
+import EditProduct from './pages/dashboard/EditProduct';
+import ViewProduct from './pages/dashboard/ViewProduct';
+import AddProduct from './pages/dashboard/AddProduct';
 
 const router = createBrowserRouter([
   { path: '/', element: <Navigate to="/signin" /> },
@@ -25,6 +28,9 @@ const router = createBrowserRouter([
     ),
     children: [
       { index: true, element: <Dashboard /> },
+      { path: 'edit/:id', element: <EditProduct /> },
+      { path: 'view/:id', element: <ViewProduct /> },
+      { path: 'add-item', element: <AddProduct /> },
     ],
   },
 ]);

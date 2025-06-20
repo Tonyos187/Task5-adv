@@ -2,14 +2,13 @@ import React, { useState, useEffect } from "react";
 import {
   Container,
   Row,
-  Col,
   Nav,
   Tab,
   Form,
   Button,
-  Pagination,
   Spinner,
   Alert,
+  Carousel,
 } from "react-bootstrap";
 import ProductCard from "./ProductCard";
 import { useNavigate } from "react-router-dom";
@@ -26,11 +25,10 @@ interface Product {
 const Dashboard: React.FC = () => {
   const [key, setKey] = useState("products");
   const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const itemsPerPage = 10;
+  const [carouselIndex, setCarouselIndex] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -70,48 +68,70 @@ const Dashboard: React.FC = () => {
     fetchProducts();
   }, [navigate]);
 
+  const handleCarouselSelect = (selectedIndex: number) => {
+    setCarouselIndex(selectedIndex);
+  };
+
+  const handlePrev = () => {
+    setCarouselIndex((prevIndex) =>
+      prevIndex === 0 ? productChunks.length - 1 : prevIndex - 1
+    );
+  };
+
+  const handleNext = () => {
+    setCarouselIndex((prevIndex) =>
+      prevIndex === productChunks.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+
   const filteredProducts = products.filter((product) =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-  const displayedProducts = filteredProducts.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const chunkArray = (arr: Product[], size: number): Product[][] =>
+    arr.length > 0
+      ? [arr.slice(0, size), ...chunkArray(arr.slice(size), size)]
+      : [];
+
+  const productChunks = chunkArray(filteredProducts, 8);
 
   return (
-    <div className={styles["dashboard-container"]}>
+    <div className={`${styles["dashboard-container"]} 100-vh m-0 no-gutter`}>
       <Container
         fluid
-        className={`d-flex position-relative p-0  ${styles["z-index-2"]} no-gutter`}
+        className={`d-flex position-relative p-0 ${styles["z-index-2"]} no-gutter`}
       >
         <Row className="w-100 no-gutter">
-          <Col xs={12} className={styles["dashboard-content"]}>
+          <Container className={`${styles["dashboard-content"]} no-gutter w-100`}>
             <Tab.Container
               activeKey={key}
               onSelect={(k) => setKey(k || "products")}
             >
               <Nav variant="tabs" className={styles["dashboard-nav"]}>
-                <div className="d-flex gap-2">
+                <div className={styles.searchInputContainer}>
                   <Form.Control
                     type="text"
-                    placeholder="Search Items..."
+                    placeholder="Search product by name "
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className={styles["search-input"]}
                   />
-                  <Button
-                    variant="warning"
-                    onClick={() => navigate("/add-item")}
-                    className={styles["add-item-btn"]}
-                  >
-                    Add item
-                  </Button>
+                  <img
+                    src="/assets/icons/search.png"
+                    alt="Search"
+                    className={styles.searchIcon}
+                  />
                 </div>
+                <Button
+                  variant="warning"
+                  onClick={() => navigate("/dashboard/add-item")}
+                  className={styles["add-item-btn"]}
+                >
+                  ADD NEW PRODUCT
+                </Button>
               </Nav>
               <Tab.Content className={styles["dashboard-tab-content"]}>
-                <Tab.Pane eventKey="products">
+                <Tab.Pane eventKey="products" className="d-flex flex-column justify-content-between gap-2">
                   {loading ? (
                     <div className={styles["loading-container"]}>
                       <Spinner animation="border" variant="warning" />
@@ -119,47 +139,75 @@ const Dashboard: React.FC = () => {
                     </div>
                   ) : error ? (
                     <Alert variant="danger">{error}</Alert>
+                  ) : filteredProducts.length === 0 ? (
+                    <p className={styles["no-items"]}>
+                      No products found. Add your first product!
+                    </p>
                   ) : (
                     <>
-                      <Row className="g-3">
-                        {displayedProducts.length > 0 ? (
-                          displayedProducts.map((product) => (
-                            <Col key={product.id} xs={12} sm={6} md={4} lg={3}>
-                              <ProductCard
-                                id={product.id}
-                                itemName={product.name}
-                                ItemPrice={product.price}
-                                itemImage={product.image_url}
-                              />
-                            </Col>
-                          ))
-                        ) : (
-                          <p className={styles["no-items"]}>
-                            No products found. Add your first product!
-                          </p>
-                        )}
-                      </Row>
-                      {totalPages > 1 && (
-                        <div className={styles["pagination-container"]}>
-                          <Pagination>
-                            {[...Array(totalPages)].map((_, index) => (
-                              <Pagination.Item
-                                key={index + 1}
-                                active={currentPage === index + 1}
-                                onClick={() => setCurrentPage(index + 1)}
+                      <Carousel
+                        indicators={false}
+                        controls={false}
+                        activeIndex={carouselIndex}
+                        onSelect={handleCarouselSelect}
+                      >
+                        {productChunks.map(
+                          (chunk: Product[], index: number) => (
+                            <Carousel.Item key={index}>
+                              <Row
+                                className={`${styles["gapping-cards"]} g0 p-0`}
                               >
-                                {index + 1}
-                              </Pagination.Item>
-                            ))}
-                          </Pagination>
-                        </div>
-                      )}
+                                {chunk.map((product: Product) => (
+                                  <Container
+                                    key={product.id}
+                                    className={`${styles["cards"]}`}
+                                  >
+                                    <ProductCard
+                                      id={product.id}
+                                      itemName={product.name}
+                                      ItemPrice={product.price}
+                                      itemImage={product.image_url}
+                                    />
+                                  </Container>
+                                ))}
+                              </Row>
+                            </Carousel.Item>
+                          )
+                        )}
+                      </Carousel>
+                      <div className={styles.numberIndicators}>
+                        <button
+                          onClick={handlePrev}
+                          className={styles.arrowBtn}
+                        >
+                          <img src="/assets/icons/left.png" alt="" />
+                        </button>
+                        {productChunks.map((_, index) => (
+                          <button
+                            key={index}
+                            className={`${styles.indicatorBtn} ${
+                              index === carouselIndex
+                                ? styles.activeIndicator
+                                : ""
+                            }`}
+                            onClick={() => setCarouselIndex(index)}
+                          >
+                            {index + 1}
+                          </button>
+                        ))}
+                        <button
+                          onClick={handleNext}
+                          className={styles.arrowBtn}
+                        >
+                          <img src="/assets/icons/right.png" alt="" />
+                        </button>
+                      </div>
                     </>
                   )}
                 </Tab.Pane>
               </Tab.Content>
             </Tab.Container>
-          </Col>
+          </Container>
         </Row>
       </Container>
     </div>

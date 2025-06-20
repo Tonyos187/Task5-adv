@@ -91,11 +91,13 @@
 }
 
 .sidebar-width {
-    width: 18.75%;
+    width: 18.75% !important;
+    height: 100vh;
 }
 
 .dashboard-width {
-    width: 81.25%;
+    width: 81.25% !important;
+    height: 100vh;
 }
 
 .label {
